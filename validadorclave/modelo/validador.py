@@ -17,3 +17,22 @@ class ReglaValidacion:
     def _contiene_numero(self, clave: str) -> bool:
         return any(c.isdigit() for c in clave)
     
+    
+class ReglaValidacionGanimedes(ReglaValidacion):
+    def __init__(self):
+        super().__init__(8)
+
+    def contiene_caracter_especial(self, clave: str) -> bool:
+        return any(c in '@_#$%' for c in clave)
+
+    def es_valida(self, clave: str) -> bool:
+        self._validar_longitud(clave)
+        if not self._contiene_mayuscula(clave):
+            raise ValidacionGanimedesError("La clave debe tener al menos una letra mayúscula")
+        if not self._contiene_minuscula(clave):
+            raise ValidacionGanimedesError("La clave debe tener al menos una letra minúscula")
+        if not self._contiene_numero(clave):
+            raise ValidacionGanimedesError("La clave debe tener al menos un número")
+        if not self.contiene_caracter_especial(clave):
+            raise ValidacionGanimedesError("La clave debe tener al menos un caracter especial (@, _, #, $, %)")
+        return True
