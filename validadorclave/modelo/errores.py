@@ -24,3 +24,9 @@ class NoTieneCaracterEspecialError(ValidadorError):
 
 class NoTienePalabraSecretaError(ValidadorError):
     pass
+
+class ValidacionGanimedesError(Exception):
+    pass
+
+class ValidacionCalistoError(Exception):
+    pass
