@@ -1,4 +1,4 @@
-from errores import ValidacionGanimedesError, ValidacionCalistoError
+from errores import *
 
 class ReglaValidacion:
     def __init__(self, longitud_esperada: int):
@@ -6,7 +6,7 @@ class ReglaValidacion:
 
     def _validar_longitud(self, clave: str) -> bool:
         if len(clave) <= self._longitud_esperada:
-            raise NotImplementedError()
+            raise NoCumpleLongitudMinimaError("La clave debe tener más de {} caracteres".format(self._longitud_esperada))
 
     def _contiene_mayuscula(self, clave: str) -> bool:
         return any(c.isupper() for c in clave)
@@ -16,6 +16,16 @@ class ReglaValidacion:
 
     def _contiene_numero(self, clave: str) -> bool:
         return any(c.isdigit() for c in clave)
+    
+    def validar(self, clave: str) -> bool:
+        self._validar_longitud(clave)
+
+        if not self._contiene_mayuscula(clave):
+            raise NoTieneLetraMayusculaError("La clave debe tener al menos una letra mayúscula")
+        if not self._contiene_minuscula(clave):
+            raise NoTieneLetraMinusculaError("La clave debe tener al menos una letra minúscula")
+        if not self._contiene_numero(clave):
+            raise NoTieneNumeroError("La clave debe tener al menos un número")
     
     
 class ReglaValidacionGanimedes(ReglaValidacion):
@@ -27,14 +37,9 @@ class ReglaValidacionGanimedes(ReglaValidacion):
 
     def es_valida(self, clave: str) -> bool:
         self._validar_longitud(clave)
-        if not self._contiene_mayuscula(clave):
-            raise ValidacionGanimedesError("La clave debe tener al menos una letra mayúscula")
-        if not self._contiene_minuscula(clave):
-            raise ValidacionGanimedesError("La clave debe tener al menos una letra minúscula")
-        if not self._contiene_numero(clave):
-            raise ValidacionGanimedesError("La clave debe tener al menos un número")
+        super().validar(clave)
         if not self.contiene_caracter_especial(clave):
-            raise ValidacionGanimedesError("La clave debe tener al menos un caracter especial (@, _, #, $, %)")
+            raise NoTieneCaracterEspecialError("La clave debe tener al menos un caracter especial (@, _, #, $, %)")
         return True
     
     
@@ -47,11 +52,11 @@ class ReglaValidacionCalisto(ReglaValidacion):
         return 2 <= mayusculas < len('CALISTO')
 
     def es_valida(self, clave: str) -> bool:
-        self._validar_longitud(clave)
+        super().validar(clave)
         if not self._contiene_numero(clave):
-            raise ValidacionCalistoError("La clave debe tener al menos un número")
+            raise NoTieneNumeroError("La clave debe tener al menos un número")
         if not self.contiene_calisto(clave):
-            raise ValidacionCalistoError("La palabra 'calisto' debe estar escrita con al menos dos letras en mayúscula")
+            raise NoTienePalabraSecretaError("La palabra 'calisto' debe estar escrita con al menos dos letras en mayúscula")
         return True
     
 
@@ -60,4 +65,4 @@ class Validador:
         self.regla = regla
 
     def es_valida(self, clave: str) -> bool:
-        return self.regla(clave)
+        return self.regla.es_valida(clave)
